@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Code Architecture Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chosen Palette: Calm Neutrals -->
+    <!-- Application Structure Plan: The application is structured as a single-page dashboard with a sticky top navigation bar. This allows users to easily jump to different sections of the architecture (Backend, Frontend, Data Flow, etc.) without linear scrolling. This non-linear, thematic structure was chosen because a technical architecture document is best explored based on the user's specific interests (e.g., a frontend developer might want to jump straight to the JS section). Key interactions include a master-detail view for exploring files and a drill-down mechanism for understanding data flows, making the dense information digestible and accessible. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Backend/Frontend file structure -> Goal: Organize/Inform -> Presentation: Master-detail layout using HTML/Tailwind -> Interaction: User clicks a file name to see its details updated via JS. Justification: This is an intuitive and standard pattern for exploring hierarchical data, preventing information overload. Method: Vanilla JS DOM manipulation.
+        - Report Info: Data Flow diagrams -> Goal: Show Process/Change -> Presentation: Recreated flow diagrams with HTML/Tailwind cards & Unicode arrows -> Interaction: Clicking on a step in the flow reveals detailed information. Justification: This "progressive disclosure" allows users to get a high-level overview first and then dive into specifics as needed. Method: Vanilla JS toggle visibility.
+        - Report Info: CSS and HTML structure -> Goal: Organize/Inform -> Presentation: Styled code blocks and visual block diagrams using HTML/Tailwind. Justification: This provides a clear, visual representation of the UI structure and styling rules described in the report. Method: HTML/Tailwind.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <div id="app" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <header class="sticky top-0 bg-slate-50/80 backdrop-blur-lg z-10 py-4 border-b border-slate-200">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-slate-900">Code Architecture Explorer</h1>
+                <nav class="hidden md:flex space-x-6 text-sm font-medium">
+                    <a href="#overview" class="text-slate-600 hover:text-slate-900 transition">Overview</a>
+                    <a href="#technologies" class="text-slate-600 hover:text-slate-900 transition">Tech Stack</a>
+                    <a href="#backend" class="text-slate-600 hover:text-slate-900 transition">Backend</a>
+                    <a href="#frontend" class="text-slate-600 hover:text-slate-900 transition">Frontend</a>
+                    <a href="#data-flow" class="text-slate-600 hover:text-slate-900 transition">Data Flow</a>
+                    <a href="#ui" class="text-slate-600 hover:text-slate-900 transition">UI & Styling</a>
+                    <a href="#fallbacks" class="text-slate-600 hover:text-slate-900 transition">Fallbacks</a>
+                </nav>
+            </div>
+        </header>
+
+        <main class="py-12">
+            <section id="overview" class="space-y-6">
+                <h2 class="text-3xl font-bold tracking-tight text-slate-900 border-b pb-2">System Overview</h2>
+                <p class="text-slate-600 max-w-3xl">
+                    This interactive document presents the complete architecture for a robust, AI-powered interview system. The application is designed with a full-stack approach, featuring a Python/Flask backend and a dynamic JavaScript frontend. It includes real-time analysis of video and audio, AI-driven question generation and evaluation, and comprehensive fallback mechanisms to ensure high availability and a smooth user experience. Use the navigation above to explore the different components of the system.
+                </p>
+            </section>
+
+            <section id="technologies" class="mt-16 space-y-6">
+                <h2 class="text-3xl font-bold tracking-tight text-slate-900 border-b pb-2">Technologies & Libraries</h2>
+                <p class="text-slate-600 max-w-3xl">
+                    The application is built using a modern, performant, and reliable technology stack spanning Python for the server-side logic and vanilla JavaScript for the client-side experience. This selection prioritizes **real-time performance** and **AI integration**.
+                </p>
+                <div id="tech-stack-container" class="grid lg:grid-cols-2 gap-8">
+                    <!-- Content will be rendered here by JS -->
+                </div>
+            </section>
+
+            <section id="backend" class="mt-16 space-y-6">
+                <h2 class="text-3xl font-bold tracking-tight text-slate-900 border-b pb-2">Backend Architecture (Python/Flask)</h2>
+                <p class="text-slate-600 max-w-3xl">
+                    The backend is built with Flask and handles the core application logic, including AI integration, session management, and real-time data processing via WebSockets. Click on a file below to see its detailed responsibilities and logic.
+                </p>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="md:col-span-1">
+                        <ul id="backend-file-list" class="space-y-2"></ul>
+                    </div>
+                    <div id="backend-details" class="md:col-span-2 bg-white p-6 rounded-lg shadow-sm border border-slate-200 fade-in">
+                        <p class="text-slate-500">Select a file from the list to view its details.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="frontend" class="mt-16 space-y-6">
+                <h2 class="text-3xl font-bold tracking-tight text-slate-900 border-b pb-2">Frontend Architecture (JavaScript)</h2>
+                 <p class="text-slate-600 max-w-3xl">
+                    The frontend is a single-page application built with vanilla JavaScript, organized into logical modules for managing the camera, audio, interview flow, and UI. This modular, class-based approach ensures maintainability and scalability. Click on a file to view its role.
+                </p>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="md:col-span-1">
+                        <ul id="frontend-file-list" class="space-y-2"></ul>
+                    </div>
+                    <div id="frontend-details" class="md:col-span-2 bg-white p-6 rounded-lg shadow-sm border border-slate-200 fade-in">
+                        <p class="text-slate-500">Select a file from the list to view its details.</p>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="data-flow" class="mt-16 space-y-6">
+                <h2 class="text-3xl font-bold tracking-tight text-slate-900 border-b pb-2">Data Flow & Communication</h2>
+                 <p class="text-slate-600 max-w-3xl">
+                    This section illustrates the communication sequences between the user, frontend, and backend for key operations. The system relies on both RESTful API calls for state changes and WebSockets for real-time analysis. Click on any step in a flow to expand its details.
+                </p>
+                <div id="data-flow-container" class="space-y-8"></div>
+            </section>
+
+            <section id="ui" class="mt-16 space-y-6">
+                <h2 class="text-3xl font-bold tracking-tight text-slate-900 border-b pb-2">UI & Styling</h2>
+                 <p class="text-slate-600 max-w-3xl">
+                    The user interface is built on a screen-based architecture using HTML and styled with a custom CSS system. This section visualizes the HTML structure and outlines the core styling and animation principles.
+                </p>
+                 <div class="grid lg:grid-cols-2 gap-8">
+                    <div id="html-structure-container"></div>
+                    <div id="css-structure-container"></div>
+                </div>
+            </section>
+
+            <section id="fallbacks" class="mt-16 space-y-6">
+                <h2 class="text-3xl font-bold tracking-tight text-slate-900 border-b pb-2">Error Handling & Fallbacks</h2>
+                <p class="text-slate-600 max-w-3xl">
+                   To ensure robustness, the system incorporates multiple layers of fallbacks on both the backend and frontend. This strategy allows the application to gracefully degrade its functionality in case of API failures, media permission issues, or network problems, preventing a complete service interruption.
+                </p>
+                <div id="fallbacks-container" class="grid md:grid-cols-2 gap-8"></div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        const appData = {
+            backend: [
+                {
+                    id: 'app.py',
+                    name: 'Main Application Controller (app.py)',
+                    description: 'The central hub of the backend, responsible for initializing the Flask app, managing WebSocket connections with Socket.IO, and handling core API routes.',
+                    details: [
+                        { title: 'Core Logic & Responsibilities', items: ['Main Flask app initialization and configuration.', 'AI Integration Logic using Gemini, with fallback models.', 'InterviewSession class to manage state (questions, answers, scores).'] },
+                        { title: 'Key Route Handlers', items: ["@app.route('/start_interview'): Generates questions via AI or fallback database.", "@app.route('/submit_answer'): Evaluates user answers using AI or a rule-based system."] },
+                        { title: 'Real-time Analysis Logic', items: ["@socketio.on('process_frame'): Uses MediaPipe for real-time facial analysis (confidence, eye contact).", "@socketio.on('process_audio'): Uses librosa for audio analysis (voice clarity, energy)."] }
+                    ]
+                },
+                {
+                    id: 'config.py',
+                    name: 'Configuration Management (config.py)',
+                    description: 'A centralized configuration file to manage environment variables and application settings.',
+                    details: [
+                        { title: 'Purpose', items: ['Stores sensitive information like API keys.', 'Defines application settings such as scoring weights and audio processing parameters.', 'Ensures consistent configuration across all backend modules.'] }
+                    ]
+                }
+            ],
+            frontend: [
+                {
+                    id: 'main.js',
+                    name: 'Main Application Controller (main.js)',
+                    description: 'The entry point and primary controller for the frontend application. It manages the overall application state, screen navigation, and communication with the backend.',
+                    details: [
+                        { title: 'Core Class: AIInterviewer', items: ['constructor(): Initializes the app, sets up Socket.IO connection, and registers event listeners.', 'showScreen(): Manages visibility of different UI screens (landing, setup, interview, etc.).', 'startInterview(): Controls the main interview flow from start to finish.', 'submitAnswer(): Handles the process of sending user answers to the backend for evaluation.'] },
+                        { title: 'Real-time Updates', items: ["initializeSocketListeners(): Sets up handlers for 'frame_analysis' and 'voice_analysis' events from the server to update UI meters in real-time."] }
+                    ]
+                },
+                {
+                    id: 'camera.js',
+                    name: 'Camera Management (camera.js)',
+                    description: 'Encapsulates all logic related to accessing and processing the user\'s webcam feed.',
+                    details: [
+                        { title: 'Core Class: CameraManager', items: ['initializeCamera(): Handles permissions and initializes the video stream.', "startAnalysis(): Captures frames at a set interval, converts them to base64, and sends them to the backend via WebSockets for analysis.", 'Provides user controls like flipCamera() and toggleMicrophone().'] },
+                    ]
+                },
+                {
+                    id: 'audio.js',
+                    name: 'Audio Management (audio.js)',
+                    description: 'Manages microphone input, audio recording, real-time voice analysis, and text-to-speech functionality.',
+                    details: [
+                        { title: 'Core Class: AudioManager', items: ['initialize(): Sets up the Web Audio API context.', 'startVoiceAnalysis(): Uses an analyser node to process frequency data and sends metrics to the backend.', 'Recording Logic: Implements start/stop recording using the MediaRecorder API.', 'Text-to-Speech Logic: Uses the Web Speech API to announce questions and feedback.'] },
+                    ]
+                },
+                {
+                    id: 'interview.js',
+                    name: 'Interview Flow Management (interview.js)',
+                    description: 'Manages the state and UI updates specific to the active interview screen.',
+                    details: [
+                        { title: 'Core Class: InterviewManager', items: ['startInterview(): Initializes all necessary components for the interview.', 'startQuestion(): Updates the UI for each new question, including the timer.', 'updateConfidenceDisplay(): Renders real-time feedback data from the backend onto the UI meters.'] },
+                    ]
+                },
+                 {
+                    id: 'landing.js',
+                    name: 'Landing Page (landing.js)',
+                    description: 'Contains simple navigation logic for the initial landing page experience.',
+                    details: [
+                        { title: 'Navigation Logic', items: ["showInterviewSetup(): Handles the transition from the animated landing page to the interview setup screen, typically triggered by a CTA button."] },
+                    ]
+                },
+            ],
+            dataFlows: [
+                { 
+                    title: '1. Interview Initialization Flow', 
+                    steps: [
+                        { name: 'User Input (Role/Name)', detail: 'User fills out the setup form on the frontend.' },
+                        { name: "main.js: startInterview()", detail: 'Frontend validates input and prepares the API request.' },
+                        { name: "POST /start_interview", detail: 'An HTTP POST request is sent to the backend to start the session.' },
+                        { name: "app.py: generate_questions()", detail: 'Backend logic determines whether to call the Gemini AI or use the fallback database to get questions.'},
+                        { name: "Gemini AI or Fallback", detail: 'Questions are generated or retrieved.' },
+                        { name: "Return questions array", detail: 'The backend responds with a JSON array of questions.' },
+                        { name: "Initialize media systems", detail: 'Frontend (camera.js, audio.js) requests camera/mic permissions.' },
+                        { name: "Start first question", detail: 'The UI updates to display the first question and the interview begins.' }
+                    ] 
+                },
+                { 
+                    title: '2. Real-time Analysis Flow', 
+                    steps: [
+                        { name: 'Camera Frame Capture (camera.js)', detail: 'A frame is captured from the user\'s video stream.' },
+                        { name: 'Canvas processing & Base64 encoding', detail: 'The frame is drawn to a hidden canvas and converted to a base64 string.' },
+                        { name: "Socket emit 'process_frame'", detail: 'The encoded frame data is sent to the backend over a WebSocket connection.' },
+                        { name: 'app.py: MediaPipe analysis', detail: 'The backend receives the frame and uses MediaPipe to analyze facial landmarks.' },
+                        { name: "Socket emit 'frame_analysis'", detail: 'The analysis results (e.g., confidence score) are sent back to the client.' },
+                        { name: 'main.js: updateConfidenceMeters()', detail: 'The frontend receives the analysis and updates the UI meters.' },
+                    ] 
+                },
+                { 
+                    title: '3. Answer Submission Flow', 
+                    steps: [
+                        { name: 'User Answer (text/audio)', detail: 'User finishes answering and clicks the submit button.' },
+                        { name: 'main.js: submitAnswer()', detail: 'Frontend packages the answer text and/or audio recording.' },
+                        { name: 'POST /submit_answer', detail: 'An HTTP POST request with the answer data is sent to the backend.' },
+                        { name: 'app.py: evaluate_answer_with_ai()', detail: 'Backend uses Gemini AI or a rule-based fallback to evaluate the answer against the question.' },
+                        { name: 'Return score + feedback', detail: 'The backend responds with a JSON object containing the score and qualitative feedback.' },
+                        { name: 'Next question or completion', detail: 'Frontend UI updates to show the feedback and either presents the next question or moves to the results screen.' },
+                    ]
+                },
+                {
+                    title: '4. Voice Analysis Flow',
+                    steps: [
+                        { name: 'Microphone Input', detail: 'The frontend captures raw audio from the user\'s microphone.' },
+                        { name: 'audio.js: Web Audio API', detail: 'The Web Audio API is used to create an analyser node to process the audio stream.' },
+                        { name: 'Frequency analysis & metrics calculation', detail: 'The analyser node provides frequency data, which is used to calculate metrics like energy and clarity.' },
+                        { name: "Socket emit 'process_audio'", detail: 'These calculated metrics are sent to the backend via WebSockets for further analysis.' },
+                        { name: 'app.py: librosa analysis', detail: 'The backend can perform more advanced analysis on the metrics using the librosa library.' },
+                        { name: "Socket emit 'voice_analysis'", detail: 'The final voice analysis results are sent back to the client.' },
+                        { name: 'main.js: updateVoiceMeter()', detail: 'The frontend updates the voice quality UI meter.' },
+                    ]
+                }
+            ],
+            techStack: {
+                backend: {
+                    title: 'Backend Technologies & Libraries',
+                    description: 'The Python backend leverages a variety of libraries for AI integration, real-time communication, data analysis, and server-side operations.',
+                    sections: [
+                        {
+                            name: 'Core Framework',
+                            items: [
+                                { name: 'Flask (v2.3.3)', detail: 'Python web framework for handling HTTP requests, routing, and server-side logic' },
+                                { name: 'Flask-CORS (v4.0.0)', detail: 'Cross-Origin Resource Sharing support for frontend-backend communication' },
+                                { name: 'Flask-SocketIO (v5.3.6)', detail: 'Real-time bidirectional communication between client and server' },
+                            ]
+                        },
+                        {
+                            name: 'AI & Machine Learning',
+                            items: [
+                                { name: 'Google GenAI (v0.1.0+)', detail: 'Google\'s Gemini AI SDK for intelligent question generation and answer evaluation' },
+                                { name: 'MediaPipe (v0.10.7)', detail: 'Google\'s framework for real-time facial analysis, gesture detection, and pose estimation' },
+                                { name: 'OpenCV (v4.8.1.78)', detail: 'Computer vision library for video processing and facial confidence analysis' },
+                                { name: 'scikit-learn (v1.3.0)', detail: 'Machine learning utilities for data analysis and scoring algorithms' },
+                            ]
+                        },
+                        {
+                            name: 'Audio Processing',
+                            items: [
+                                { name: 'librosa (v0.10.1)', detail: 'Advanced audio analysis library for voice quality assessment' },
+                                { name: 'soundfile (v0.12.1)', detail: 'Audio file I/O operations' },
+                                { name: 'NumPy (v1.24.3)', detail: 'Numerical computing for audio signal processing' },
+                            ]
+                        },
+                        {
+                            name: 'Data & Configuration',
+                            items: [
+                                { name: 'python-dotenv (v1.0.0)', detail: 'Environment variable management for API keys and configuration' },
+                                { name: 'requests (v2.31.0)', detail: 'HTTP library for external API calls' },
+                                { name: 'pydantic (v2.0.0+)', detail: 'Data validation and settings management' },
+                            ]
+                        },
+                         {
+                            name: 'Visualization & Reporting',
+                            items: [
+                                { name: 'matplotlib (v3.7.2)', detail: 'Chart generation for performance reports' },
+                            ]
+                        },
+                        {
+                            name: 'Why These Backend Libraries?',
+                            items: [
+                                'Flask: Lightweight, flexible framework perfect for AI-powered applications',
+                                'Gemini AI: Advanced language model for intelligent question generation and answer evaluation',
+                                'MediaPipe: Industry-standard for real-time computer vision analysis',
+                                'librosa: Professional-grade audio analysis for voice confidence scoring',
+                                'SocketIO: Enables real-time feedback during interviews'
+                            ]
+                        }
+                    ]
+                },
+                frontend: {
+                    title: 'Frontend Technologies & Libraries',
+                    description: 'The client-side relies on native browser APIs and modular Vanilla JS for speed, direct hardware access, and minimal dependencies.',
+                    sections: [
+                        {
+                            name: 'Core Technologies',
+                            items: [
+                                { name: 'HTML5', detail: 'Semantic markup with modern features (video, audio, canvas)' },
+                                { name: 'CSS3', detail: 'Advanced styling with animations, gradients, and responsive design' },
+                                { name: 'Vanilla JavaScript (ES6+)', detail: 'Modern JavaScript without heavy frameworks for optimal performance' },
+                            ]
+                        },
+                        {
+                            name: 'Real-time Communication',
+                            items: [
+                                { name: 'Socket.IO Client (v4.0.1)', detail: 'Real-time bidirectional communication with the backend' },
+                                { name: 'WebRTC APIs', detail: 'Native browser APIs for camera and microphone access' },
+                            ]
+                        },
+                        {
+                            name: 'Media & Audio APIs',
+                            items: [
+                                { name: 'MediaRecorder API', detail: 'Native browser audio recording capabilities' },
+                                { name: 'Web Speech API', detail: 'Text-to-speech and speech recognition functionality' },
+                                { name: 'getUserMedia API', detail: 'Camera and microphone access' },
+                                { name: 'Canvas API', detail: 'Video frame processing for AI analysis' },
+                            ]
+                        },
+                         {
+                            name: 'UI/UX Libraries',
+                            items: [
+                                { name: 'Google Fonts', detail: 'Inter and Space Grotesk fonts for modern typography' },
+                                { name: 'CSS Grid & Flexbox', detail: 'Modern layout systems for responsive design' },
+                                { name: 'CSS Animations', detail: 'Smooth transitions and engaging visual effects' },
+                            ]
+                        },
+                        {
+                            name: 'Architecture Pattern (Modular JavaScript Classes)',
+                            items: [
+                                'AIInterviewer – Main application controller',
+                                'CameraManager – Video stream and camera controls',
+                                'AudioManager – Audio recording and voice analysis',
+                                'VoiceAnalyzer – Voice quality assessment utilities',
+                            ]
+                        },
+                        {
+                            name: 'Why These Frontend Technologies?',
+                            items: [
+                                'Vanilla JavaScript: Faster performance, smaller bundle size, direct browser API access',
+                                'WebRTC: Native browser support for media streaming without plugins',
+                                'Socket.IO: Real-time updates for confidence meters and analysis',
+                                'CSS3 Animations: Smooth, hardware-accelerated visual feedback',
+                                'Modular Architecture: Maintainable, testable code organization'
+                            ]
+                        }
+                    ]
+                }
+            },
+            htmlStructure: {
+                title: 'HTML Structure (templates/index.html)',
+                description: 'The application uses a screen-based architecture, where different views are contained within parent divs. JavaScript controls which screen is active at any given time, creating the feel of a multi-page app within a single HTML file.',
+                structure: [
+                    { name: 'landing-screen', description: 'Hero section, features, navigation.' },
+                    { name: 'setup-screen', description: 'Role selection, name input.' },
+                    { name: 'camera-test-screen', description: 'Media permissions testing.' },
+                    { name: 'interview-screen', description: 'Main interview layout with video and question sections.' },
+                    { name: 'results-screen', description: 'Final score display and detailed report.' },
+                ]
+            },
+            cssStructure: {
+                title: 'Frontend Styling (static/css/style.css)',
+                description: 'The styling is managed through a dedicated CSS file, defining layout systems, real-time feedback meters, and animations to create an engaging user experience.',
+                systems: [
+                    { 
+                        name: 'Layout System',
+                        rules: [
+                            { selector: '.screen', style: 'display: none;', comment: 'All screens are hidden by default.' },
+                            { selector: '.screen.active', style: 'display: block;', comment: 'The active screen is made visible.' },
+                            { selector: '.interview-layout', style: 'display: grid; grid-template-columns: 1fr 1fr;', comment: 'A responsive grid for the main interview view.' }
+                        ]
+                    },
+                    {
+                        name: 'Animation System',
+                        rules: [
+                             { selector: '.meter-bar', style: 'transition: width 0.5s;', comment: 'Smoothly animates the width of feedback meters.' },
+                             { selector: '@keyframes gradientShift', style: '{...}', comment: 'Creates an animated background gradient for the landing page.' },
+                             { selector: '@keyframes float', style: '{...}', comment: 'Animates floating decorative shapes on the landing page.' }
+                        ]
+                    }
+                ]
+            },
+            fallbacks: {
+                backend: {
+                    title: 'Backend Fallbacks',
+                    items: [
+                        { trigger: 'AI unavailable', fallback: 'Intelligent rule-based evaluation' },
+                        { trigger: 'API quota exceeded', fallback: 'Enhanced fallback questions' },
+                        { trigger: 'MediaPipe fails', fallback: 'Basic confidence scoring' }
+                    ]
+                },
+                frontend: {
+                    title: 'Frontend Fallbacks',
+                    items: [
+                        { trigger: 'Camera unavailable', fallback: 'Audio-only interview mode' },
+                        { trigger: 'Microphone fails', fallback: 'Text-only answer submission' },
+                        { trigger: 'Socket disconnection', fallback: 'Graceful degradation of real-time features' }
+                    ]
+                }
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const backendFileList = document.getElementById('backend-file-list');
+            const backendDetails = document.getElementById('backend-details');
+            const frontendFileList = document.getElementById('frontend-file-list');
+            const frontendDetails = document.getElementById('frontend-details');
+            const dataFlowContainer = document.getElementById('data-flow-container');
+            const techStackContainer = document.getElementById('tech-stack-container');
+            const htmlStructureContainer = document.getElementById('html-structure-container');
+            const cssStructureContainer = document.getElementById('css-structure-container');
+            const fallbacksContainer = document.getElementById('fallbacks-container');
+
+            const renderFileList = (container, fileList, detailsContainer, data) => {
+                data.forEach((file, index) => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<button class="w-full text-left p-3 rounded-md transition font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500" data-id="${file.id}">${file.name}</button>`;
+                    container.appendChild(li);
+
+                    if (index === 0) {
+                        li.querySelector('button').classList.add('bg-slate-200', 'text-slate-900');
+                        renderDetails(detailsContainer, file);
+                    }
+                });
+
+                container.addEventListener('click', (e) => {
+                    if (e.target.tagName === 'BUTTON') {
+                        const fileId = e.target.dataset.id;
+                        const fileData = data.find(f => f.id === fileId);
+                        
+                        container.querySelectorAll('button').forEach(btn => {
+                            btn.classList.remove('bg-slate-200', 'text-slate-900');
+                            btn.classList.add('bg-slate-100', 'text-slate-600');
+                        });
+                        e.target.classList.add('bg-slate-200', 'text-slate-900');
+                        e.target.classList.remove('bg-slate-100', 'text-slate-600');
+                        
+                        renderDetails(detailsContainer, fileData);
+                    }
+                });
+            };
+            
+            const renderDetails = (container, fileData) => {
+                let detailsHtml = `
+                    <div class="fade-in">
+                        <h3 class="text-xl font-bold text-slate-900">${fileData.name}</h3>
+                        <p class="mt-2 text-slate-600">${fileData.description}</p>
+                        <div class="mt-6 space-y-4">
+                            ${fileData.details.map(detail => `
+                                <div>
+                                    <h4 class="font-semibold text-slate-800">${detail.title}</h4>
+                                    <ul class="mt-2 list-disc list-inside space-y-1 text-slate-600">
+                                        ${detail.items.map(item => `<li>${item}</li>`).join('')}
+                                    </ul>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                container.innerHTML = detailsHtml;
+            };
+
+            const renderTechStack = () => {
+                const { backend, frontend } = appData.techStack;
+
+                const createTechCard = (data, isBackend) => {
+                    let sectionsHtml = data.sections.map(section => {
+                        let itemsHtml = section.items.map(item => {
+                            if (typeof item === 'string') {
+                                // For justification lists (simple strings)
+                                const iconClass = isBackend ? 'text-indigo-400' : 'text-emerald-400';
+                                return `<li class="text-sm text-slate-600 flex items-start"><span class="mr-2 mt-1 text-xs ${iconClass} font-bold">&#9679;</span>${item}</li>`;
+                            } else {
+                                // For technology lists (name and detail)
+                                return `
+                                    <li class="p-3 bg-slate-50 rounded-md">
+                                        <p class="font-semibold text-slate-800">${item.name}</p>
+                                        <p class="text-xs text-slate-500">${item.detail}</p>
+                                    </li>
+                                `;
+                            }
+                        }).join('');
+
+                        const sectionHeaderClass = section.name.includes('Why') ? 'text-indigo-600 mt-6' : 'text-slate-800 mt-4';
+                        
+                        return `
+                            <div class="mt-4">
+                                <h4 class="font-bold ${sectionHeaderClass}">${section.name}</h4>
+                                <ul class="mt-2 space-y-2 list-none pl-0">
+                                    ${itemsHtml}
+                                </ul>
+                            </div>
+                        `;
+                    }).join('');
+
+                    return `
+                        <div class="bg-white p-6 rounded-lg shadow-xl border border-slate-200 h-full">
+                            <h3 class="text-2xl font-bold ${isBackend ? 'text-indigo-700' : 'text-emerald-700'} mb-2">${data.title}</h3>
+                            <p class="text-sm text-slate-600 mb-4 border-b pb-3">${data.description}</p>
+                            ${sectionsHtml}
+                        </div>
+                    `;
+                };
+
+                techStackContainer.innerHTML = createTechCard(backend, true) + createTechCard(frontend, false);
+            };
+            
+            const renderDataFlows = () => {
+                appData.dataFlows.forEach(flow => {
+                    const flowElement = document.createElement('div');
+                    flowElement.className = 'bg-white p-6 rounded-lg shadow-sm border border-slate-200';
+                    let stepsHtml = flow.steps.map((step, index) => `
+                        <div class="relative pl-8">
+                            <div class="absolute left-0 top-1 w-4 h-4 bg-slate-200 rounded-full border-4 border-white ring-2 ring-slate-300"></div>
+                            ${index < flow.steps.length - 1 ? '<div class="absolute left-[7px] top-5 h-full w-px bg-slate-200"></div>' : ''}
+                            <button class="w-full text-left font-medium text-slate-700 hover:text-slate-900" data-target="flow-detail-${flow.title.replace(/\s+/g, '-')}-${index}">
+                                ${step.name}
+                            </button>
+                            <div id="flow-detail-${flow.title.replace(/\s+/g, '-')}-${index}" class="hidden mt-2 text-sm text-slate-500 bg-slate-50 p-3 rounded-md">
+                                ${step.detail}
+                            </div>
+                        </div>
+                    `).join('<div class="h-4"></div>');
+
+                    flowElement.innerHTML = `
+                        <h3 class="text-xl font-bold text-slate-900 mb-4">${flow.title}</h3>
+                        <div>${stepsHtml}</div>
+                    `;
+                    dataFlowContainer.appendChild(flowElement);
+                });
+
+                dataFlowContainer.addEventListener('click', (e) => {
+                    const button = e.target.closest('button');
+                    if (button) {
+                        const targetId = button.dataset.target;
+                        const detailElement = document.getElementById(targetId);
+                        if (detailElement) {
+                            detailElement.classList.toggle('hidden');
+                        }
+                    }
+                });
+            };
+
+            const renderHtmlStructure = () => {
+                const { title, description, structure } = appData.htmlStructure;
+                let structureHtml = structure.map(item => `
+                    <div class="flex items-center space-x-3 p-3 bg-slate-100 rounded-md">
+                        <div class="flex-shrink-0 w-8 h-8 rounded bg-slate-200 flex items-center justify-center font-mono text-xs text-slate-500">&lt;/&gt;</div>
+                        <div>
+                            <p class="font-semibold text-slate-800">${item.name}</p>
+                            <p class="text-sm text-slate-600">${item.description}</p>
+                        </div>
+                    </div>
+                `).join('');
+
+                htmlStructureContainer.innerHTML = `
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200 h-full">
+                        <h3 class="text-xl font-bold text-slate-900">${title}</h3>
+                        <p class="mt-2 text-sm text-slate-600">${description}</p>
+                        <div class="mt-4 space-y-3">${structureHtml}</div>
+                    </div>
+                `;
+            };
+            
+            const renderCssStructure = () => {
+                const { title, description, systems } = appData.cssStructure;
+                let systemsHtml = systems.map(system => `
+                    <div>
+                        <h4 class="font-semibold text-slate-800">${system.name}</h4>
+                        <div class="mt-2 space-y-2 text-sm font-mono bg-slate-800 text-slate-200 p-4 rounded-md">
+                            ${system.rules.map(rule => `
+                                <div>
+                                    <span class="text-cyan-400">${rule.selector}</span> {
+                                    <span class="text-fuchsia-400">${rule.style}</span>
+                                    <span class="text-slate-500"> /* ${rule.comment} */</span>
+                                    }
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('');
+
+                cssStructureContainer.innerHTML = `
+                     <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200 h-full">
+                        <h3 class="text-xl font-bold text-slate-900">${title}</h3>
+                        <p class="mt-2 text-sm text-slate-600">${description}</p>
+                        <div class="mt-4 space-y-4">${systemsHtml}</div>
+                    </div>
+                `;
+            };
+
+            const renderFallbacks = () => {
+                const { backend, frontend } = appData.fallbacks;
+                const createFallbackCard = (data) => `
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="text-xl font-bold text-slate-900">${data.title}</h3>
+                        <ul class="mt-4 space-y-3">
+                        ${data.items.map(item => `
+                            <li class="flex items-start">
+                                <span class="text-emerald-500 mr-3 mt-1">&#10003;</span>
+                                <div>
+                                    <p class="font-semibold text-slate-700">${item.trigger}</p>
+                                    <p class="text-slate-500">
+                                        <span class="font-mono text-xs text-slate-400 mr-2">→</span> ${item.fallback}
+                                    </p>
+                                </div>
+                            </li>
+                        `).join('')}
+                        </ul>
+                    </div>
+                `;
+                fallbacksContainer.innerHTML = createFallbackCard(backend) + createFallbackCard(frontend);
+            };
+
+            renderFileList(backendFileList, appData.backend, backendDetails, appData.backend);
+            renderFileList(frontendFileList, appData.frontend, frontendDetails, appData.frontend);
+            renderTechStack();
+            renderDataFlows();
+            renderHtmlStructure();
+            renderCssStructure();
+            renderFallbacks();
+        });
+    </script>
+</body>
+</html>
